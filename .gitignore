@@ -1,0 +1,13 @@
+.DS_Store
+.build/
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+*.xcresult
+.swiftpm/
+Artifacts/*
+!Artifacts/discover.png
+!Artifacts/detail.png
+!Artifacts/visited.png
+!Artifacts/live-search.png
