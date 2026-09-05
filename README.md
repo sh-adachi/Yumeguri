@@ -38,6 +38,14 @@ xcodebuild \
 
 実機のiPhoneでは、XcodeにApple Accountを追加し、アプリターゲットの Signing & Capabilities でTeamと自動署名を設定します。必要に応じてBundle Identifierを自分専用の値に変更し、iPhoneの開発者モードを有効にして実機をRunの実行先に指定してください。シミュレータ用コマンドの `CODE_SIGNING_ALLOWED=NO` は実機の署名設定に使用しません。実機実行の手順は[Appleの公式ドキュメント](https://developer.apple.com/documentation/xcode/running-your-app-on-simulated-or-physical-devices)と[開発者モードの説明](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device)を参照してください。App Storeへの申請・公開は行っていません。
 
+この個人用プロジェクトには、所有者のPersonal Teamを設定済みです。同じApple Accountを登録したMacでは、iPhoneを接続・ロック解除し、実行先として選んでRunできます。初回起動で開発者の信頼を求められた場合は、iPhoneの「設定 → 一般 → VPNとデバイス管理 → デベロッパAPP」で自分のApple Accountを信頼します。
+
+ターミナルで再インストールする場合は、`xcrun xctrace list devices` で実機のUDIDを確認して実行します。署名期限が切れた場合も、同じ手順でビルド・インストールし直します。
+
+```sh
+bash Scripts/deploy_iphone.sh <iPhoneのUDID>
+```
+
 検証用コマンド：
 
 ```sh
