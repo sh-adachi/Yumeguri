@@ -71,11 +71,12 @@ struct SpotRow: View {
     var index: Int = 0
     var body: some View {
         HStack(spacing: 14) {
-            ZStack(alignment: .bottomTrailing) {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill([YuTheme.sage, Color(red: 0.91, green: 0.87, blue: 0.80), Color(red: 0.84, green: 0.90, blue: 0.90)][index % 3])
-                Image(systemName: "mountain.2.fill").font(.system(size: 38)).foregroundStyle(YuTheme.pine.opacity(0.12)).offset(x: 8, y: 6)
-                OnsenMark().stroke(style: StrokeStyle(lineWidth: 2.1, lineCap: .round)).foregroundStyle(YuTheme.pine).frame(width: 37, height: 37).frame(maxWidth: .infinity, maxHeight: .infinity)
+            Group {
+                if let photoID = record?.photoIDs.first {
+                    StoredPhotoView(photoID: photoID, maxPixelSize: 220)
+                } else {
+                    emblemTile
+                }
             }
             .frame(width: 66, height: 72).clipped().clipShape(RoundedRectangle(cornerRadius: 18)).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 7) {
@@ -87,6 +88,10 @@ struct SpotRow: View {
                         if let rating = record.rating, record.status == .visited {
                             Text(rating.title).font(.caption.weight(.medium)).foregroundStyle(YuTheme.pine)
                         }
+                        if !record.photoIDs.isEmpty {
+                            Label("\(record.photoIDs.count)", systemImage: "photo")
+                                .font(.system(size: 10)).foregroundStyle(YuTheme.muted)
+                        }
                     }
                 }
             }
@@ -96,6 +101,15 @@ struct SpotRow: View {
         .padding(14)
         .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 22))
         .contentShape(Rectangle())
+    }
+
+    private var emblemTile: some View {
+        ZStack(alignment: .bottomTrailing) {
+            RoundedRectangle(cornerRadius: 18)
+                .fill([YuTheme.sage, Color(red: 0.91, green: 0.87, blue: 0.80), Color(red: 0.84, green: 0.90, blue: 0.90)][index % 3])
+            Image(systemName: "mountain.2.fill").font(.system(size: 38)).foregroundStyle(YuTheme.pine.opacity(0.12)).offset(x: 8, y: 6)
+            OnsenMark().stroke(style: StrokeStyle(lineWidth: 2.1, lineCap: .round)).foregroundStyle(YuTheme.pine).frame(width: 37, height: 37).frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
 }
 

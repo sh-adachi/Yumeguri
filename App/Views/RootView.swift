@@ -41,7 +41,7 @@ struct RootView: View {
         }
         .background(YuTheme.paper)
         .safeAreaInset(edge: .bottom, spacing: 0) { tabBar }
-        .sheet(item: $selectedSpot) { spot in
+        .sheet(item: $selectedSpot, onDismiss: { store.finishPhotoEditing() }) { spot in
             SpotDetailView(spot: spot).environment(store)
         }
         .sheet(isPresented: $showingAbout) { aboutView }
@@ -82,6 +82,8 @@ struct RootView: View {
                     Text("ゆめぐりは、気になる温泉と旅の思い出を残す、あなたの温泉手帖です。")
                     Label("記録はこの端末に保存", systemImage: "iphone")
                     Text("アカウント登録は不要です。端末間の同期機能はありません。アプリを削除すると記録も削除されます。").font(.subheadline).foregroundStyle(YuTheme.muted)
+                    Label("写真も温泉の記録と一緒に", systemImage: "photo.on.rectangle")
+                    Text("写真ライブラリから選んだ写真を、1つの温泉につき10枚まで端末内に保存できます。アプリ内で写真を削除しても、写真ライブラリの元の写真は残ります。").font(.subheadline).foregroundStyle(YuTheme.muted)
                     Label("地図と検索はAppleのマップを利用", systemImage: "map")
                     Text("検索にはインターネット接続が必要です。検索結果には温泉街、旅館、入浴施設などが含まれます。営業状況は施設の公式情報でご確認ください。現在地は「現在地」ボタンを押したときだけ利用します。").font(.subheadline).foregroundStyle(YuTheme.muted)
                     Text("はじめの温泉候補は代表地点を示すサンプルです。訪問や評価の記録は、すべてあなた自身が追加します。").font(.caption).foregroundStyle(YuTheme.muted)

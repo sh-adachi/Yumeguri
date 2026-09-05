@@ -53,6 +53,18 @@ public struct RecordRepository: Sendable {
             guard identifiers.insert(record.id).inserted else {
                 throw RepositoryError.duplicateIdentifier(record.id)
             }
+            guard record.photoIDs.count <= PhotoRepository.maxPhotosPerRecord else {
+                throw RepositoryError.tooManyPhotos
+            }
+            var photoIdentifiers = Set<UUID>()
+            for photoID in record.photoIDs {
+                guard let identifier = UUID(uuidString: photoID), photoID.count == 36 else {
+                    throw RepositoryError.invalidPhotoIdentifier(photoID)
+                }
+                guard photoIdentifiers.insert(identifier).inserted else {
+                    throw RepositoryError.duplicatePhotoIdentifier(photoID)
+                }
+            }
             guard record.spot.latitude.isFinite,
                   record.spot.longitude.isFinite,
                   (-90...90).contains(record.spot.latitude),
@@ -67,6 +79,9 @@ public enum RepositoryError: Error, LocalizedError, Equatable {
     case emptyIdentifier
     case duplicateIdentifier(String)
     case invalidCoordinate(String)
+    case tooManyPhotos
+    case invalidPhotoIdentifier(String)
+    case duplicatePhotoIdentifier(String)
 
     public var errorDescription: String? {
         switch self {
@@ -76,6 +91,12 @@ public enum RepositoryError: Error, LocalizedError, Equatable {
             "同じ温泉の記録が重複しています。"
         case .invalidCoordinate(let name):
             "「\(name)」の位置情報が正しくありません。"
+        case .tooManyPhotos:
+            "写真は1つの温泉につき\(PhotoRepository.maxPhotosPerRecord)枚まで保存できます。"
+        case .invalidPhotoIdentifier:
+            "写真の識別情報が正しくありません。"
+        case .duplicatePhotoIdentifier:
+            "同じ写真が重複しています。"
         }
     }
 }

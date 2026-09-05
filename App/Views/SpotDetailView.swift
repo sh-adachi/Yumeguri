@@ -13,10 +13,11 @@ struct SpotDetailView: View {
     @State private var confirmingDelete = false
     @State private var confirmingDiscard = false
     @State private var initialSnapshot = ""
+    @State private var photoEditor = PhotoEditor()
     @FocusState private var memoFocused: Bool
 
-    private var snapshot: String { "\(status.rawValue)|\(rating?.rawValue ?? "")|\(visitedOn.timeIntervalSince1970)|\(memo)" }
-    private var hasChanges: Bool { !initialSnapshot.isEmpty && snapshot != initialSnapshot }
+    private var snapshot: String { "\(status.rawValue)|\(rating?.rawValue ?? "")|\(visitedOn.timeIntervalSince1970)|\(memo)|\(photoEditor.photoIDs.joined(separator: ","))" }
+    private var hasChanges: Bool { photoEditor.isImporting || (!initialSnapshot.isEmpty && snapshot != initialSnapshot) }
     private var coordinate: CLLocationCoordinate2D { .init(latitude: spot.latitude, longitude: spot.longitude) }
 
     var body: some View {
@@ -62,18 +63,19 @@ struct SpotDetailView: View {
                                 .accessibilityLabel("ひとことメモ").accessibilityIdentifier("detail.memo")
                         }.background(.white, in: RoundedRectangle(cornerRadius: 18))
                     }
+                    PhotoAttachmentSection(editor: photoEditor)
                     if store.isReadOnly {
                         Text("記録の読み込みに問題があるため、保存を停止しています。アプリを再起動してお試しください。")
                             .font(.subheadline).foregroundStyle(YuTheme.clay)
                     }
                     Button(action: save) { Label("この内容で保存", systemImage: "checkmark") }
-                        .buttonStyle(PrimaryButtonStyle()).disabled(store.isReadOnly).accessibilityIdentifier("detail.saveBottom")
+                        .buttonStyle(PrimaryButtonStyle()).disabled(store.isReadOnly || photoEditor.isImporting).accessibilityIdentifier("detail.saveBottom")
                     Text("記録と評価は、あなただけの温泉手帖に保存されます。")
                         .font(.system(size: 11)).foregroundStyle(YuTheme.muted).frame(maxWidth: .infinity)
                     if store.record(for: spot) != nil {
                         Button(role: .destructive) { confirmingDelete = true } label: {
                             Label("この記録を削除", systemImage: "trash").font(.subheadline).frame(maxWidth: .infinity).padding(.vertical, 12)
-                        }.tint(YuTheme.clay).accessibilityIdentifier("detail.delete")
+                        }.tint(YuTheme.clay).disabled(store.isReadOnly || photoEditor.isImporting).accessibilityIdentifier("detail.delete")
                     }
                 }.padding(24)
             }
@@ -85,16 +87,16 @@ struct SpotDetailView: View {
                         .foregroundStyle(YuTheme.muted).accessibilityIdentifier("detail.close")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存", action: save).fontWeight(.semibold).disabled(store.isReadOnly).accessibilityIdentifier("detail.save")
+                    Button("保存", action: save).fontWeight(.semibold).disabled(store.isReadOnly || photoEditor.isImporting).accessibilityIdentifier("detail.save")
                 }
                 ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("完了") { memoFocused = false } }
             }
             .confirmationDialog("この温泉の記録を削除しますか？", isPresented: $confirmingDelete, titleVisibility: .visible) {
                 Button("記録を削除", role: .destructive) { if store.delete(spot) { dismiss() } }.accessibilityIdentifier("detail.confirmDelete")
                 Button("キャンセル", role: .cancel) {}
-            } message: { Text("評価・訪問日・メモも削除されます。") }
+            } message: { Text("評価・訪問日・メモ・添付した写真も削除されます。写真ライブラリの元の写真は残ります。") }
             .confirmationDialog("変更を保存せずに閉じますか？", isPresented: $confirmingDiscard, titleVisibility: .visible) {
-                Button("変更を破棄", role: .destructive) { dismiss() }
+                Button("変更を破棄", role: .destructive) { photoEditor.cancelImport(); dismiss() }.accessibilityIdentifier("detail.discardChanges")
                 Button("編集を続ける", role: .cancel) {}
             }
             .interactiveDismissDisabled(hasChanges)
@@ -102,6 +104,7 @@ struct SpotDetailView: View {
                 Button("閉じる", role: .cancel) { store.persistenceError = nil }
             } message: { Text(store.persistenceError ?? "") }
             .onAppear { loadRecord() }
+            .onDisappear { photoEditor.cancelImport() }
         }
     }
 
@@ -169,12 +172,14 @@ struct SpotDetailView: View {
         guard initialSnapshot.isEmpty else { return }
         if let record = store.record(for: spot) {
             status = record.status; rating = record.rating; visitedOn = record.visitedOn ?? Date(); memo = record.memo
+            photoEditor.photoIDs = record.photoIDs
         }
         initialSnapshot = snapshot
     }
 
     private func save() {
         memoFocused = false
-        if store.save(spot: spot, status: status, rating: rating, visitedOn: visitedOn, memo: memo) { dismiss() }
+        guard !photoEditor.isImporting else { return }
+        if store.save(spot: spot, status: status, rating: rating, visitedOn: visitedOn, memo: memo, photoIDs: photoEditor.photoIDs) { dismiss() }
     }
 }

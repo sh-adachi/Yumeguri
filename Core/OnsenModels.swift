@@ -87,6 +87,7 @@ public struct OnsenRecord: Identifiable, Codable, Hashable, Sendable {
     public var rating: OnsenRating?
     public var visitedOn: Date?
     public var memo: String
+    public var photoIDs: [String]
     public var createdAt: Date
     public var updatedAt: Date
 
@@ -96,6 +97,7 @@ public struct OnsenRecord: Identifiable, Codable, Hashable, Sendable {
         rating: OnsenRating? = nil,
         visitedOn: Date? = nil,
         memo: String = "",
+        photoIDs: [String] = [],
         createdAt: Date = Date(),
         updatedAt: Date? = nil
     ) {
@@ -104,6 +106,7 @@ public struct OnsenRecord: Identifiable, Codable, Hashable, Sendable {
         self.rating = status == .visited ? rating : nil
         self.visitedOn = status == .visited ? visitedOn : nil
         self.memo = memo
+        self.photoIDs = photoIDs
         self.createdAt = createdAt
         self.updatedAt = updatedAt ?? createdAt
     }
@@ -116,13 +119,14 @@ public struct OnsenRecord: Identifiable, Codable, Hashable, Sendable {
             rating: rating,
             visitedOn: visitedOn,
             memo: memo,
+            photoIDs: photoIDs,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
     }
 
     private enum CodingKeys: String, CodingKey {
-        case spot, status, rating, visitedOn, memo, createdAt, updatedAt
+        case spot, status, rating, visitedOn, memo, photoIDs, createdAt, updatedAt
     }
 
     public init(from decoder: Decoder) throws {
@@ -134,6 +138,7 @@ public struct OnsenRecord: Identifiable, Codable, Hashable, Sendable {
             rating: try values.decodeIfPresent(OnsenRating.self, forKey: .rating),
             visitedOn: try values.decodeIfPresent(Date.self, forKey: .visitedOn),
             memo: try values.decodeIfPresent(String.self, forKey: .memo) ?? "",
+            photoIDs: try values.decodeIfPresent([String].self, forKey: .photoIDs) ?? [],
             createdAt: createdAt,
             updatedAt: try values.decodeIfPresent(Date.self, forKey: .updatedAt) ?? createdAt
         )
