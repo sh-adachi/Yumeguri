@@ -92,7 +92,7 @@ Scripts/                アイコン生成用スクリプト
 
 実装時に確認したAppleの資料は、[MapKitの自然言語検索と検索エリア](https://developer.apple.com/documentation/mapkit/mklocalsearch/request)、[位置情報の利用許可](https://developer.apple.com/documentation/corelocation/cllocationmanager/requestwheninuseauthorization%28%29)、[一度だけの位置情報取得](https://developer.apple.com/documentation/corelocation/cllocationmanager/requestlocation%28%29)、[Foundationのアトミック書き込み](https://developer.apple.com/documentation/foundation/nsdata/writingoptions/atomic)です。
 
-検証結果（2026年9月5日）：Xcode 26.3、iPhone 17 Proシミュレータ（iOS 26.3.1）でアプリのビルド成功、単体テスト15件・UIテスト4件がすべて成功しました。Apple Mapsの実検索から保存するテストも成功しています。実機のインストールとGPS取得は未検証です。
+検証結果（2026年9月5日）：Xcode 26.3、iPhone 17 Proシミュレータ（iOS 26.3.1）でアプリのビルド成功、単体テスト15件・UIテスト4件がすべて成功しました。Apple Mapsの実検索から保存するテストも成功しています。実機iPhone 17（iOS 26.6）への署名付きインストールも完了し、ユーザーから実機への導入完了の報告を受けています。実機でのGPS取得は未検証です。
 
 画面の記録：[探索](Artifacts/discover.png)、[詳細・評価](Artifacts/detail.png)、[訪問履歴](Artifacts/visited.png)、[実際の検索](Artifacts/live-search.png)。保存済みの画面にあるメモや評価は、通常データとは別の自動テスト用データです。テスト結果は `Artifacts/VerifiedUITests.xcresult` に保存しています。
 
