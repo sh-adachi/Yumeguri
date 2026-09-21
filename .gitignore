@@ -11,3 +11,6 @@ Artifacts/*
 !Artifacts/detail.png
 !Artifacts/visited.png
 !Artifacts/live-search.png
+
+# Personal signing settings stay on this computer.
+Config/Signing.local.xcconfig

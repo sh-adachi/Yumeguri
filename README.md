@@ -21,7 +21,8 @@
 Xcodeで試すには、次のプロジェクトを開き、Schemeを `Yumeguri`、実行先を `iPhone 17 Pro` などのiPhoneシミュレータにして、Run（⌘R）を押してください。XcodeとiOS SDK・シミュレータランタイムが必要です。
 
 ```sh
-cd /Users/adachi/Developer/Yumeguri
+# cloneしたリポジトリに移動
+cd Yumeguri
 open Yumeguri.xcodeproj
 ```
 
@@ -39,9 +40,13 @@ xcodebuild \
 
 指定したシミュレータがない場合は、Xcodeで追加するか、インストール済みの機種名に置き換えます。位置情報は「現在地」を押したときだけ許可を求めます。シミュレータでは位置情報のシミュレーション設定が必要な場合があります。許可しなくても地名検索を利用できます。
 
-実機のiPhoneでは、XcodeにApple Accountを追加し、アプリターゲットの Signing & Capabilities でTeamと自動署名を設定します。必要に応じてBundle Identifierを自分専用の値に変更し、iPhoneの開発者モードを有効にして実機をRunの実行先に指定してください。シミュレータ用コマンドの `CODE_SIGNING_ALLOWED=NO` は実機の署名設定に使用しません。実機実行の手順は[Appleの公式ドキュメント](https://developer.apple.com/documentation/xcode/running-your-app-on-simulated-or-physical-devices)と[開発者モードの説明](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device)を参照してください。App Storeへの申請・公開は行っていません。
+実機向けのTeam IDは、Git管理外の `Config/Signing.local.xcconfig` に設定します。初回のみ次のテンプレートをコピーし、`DEVELOPMENT_TEAM` に自分のTeam IDを入力してください。Xcodeと実機導入スクリプトが自動的に読み込みます。シミュレータではこの設定は不要です。
 
-この個人用プロジェクトには、所有者のPersonal Teamを設定済みです。同じApple Accountを登録したMacでは、iPhoneを接続・ロック解除し、実行先として選んでRunできます。初回起動で開発者の信頼を求められた場合は、iPhoneの「設定 → 一般 → VPNとデバイス管理 → デベロッパAPP」で自分のApple Accountを信頼します。
+```sh
+cp -n Config/Signing.local.xcconfig.example Config/Signing.local.xcconfig
+```
+
+XcodeにApple Accountを登録し、端末との信頼設定と開発者モードを有効にしてください。別の開発者が利用する場合は、必要に応じてBundle Identifierも自身のものに変更します。実機では `CODE_SIGNING_ALLOWED=NO` を指定しません。
 
 ターミナルで再インストールする場合は、`xcrun xctrace list devices` で実機のUDIDを確認して実行します。署名期限が切れた場合も、同じ手順でビルド・インストールし直します。
 
@@ -101,7 +106,7 @@ Scripts/                アイコン生成用スクリプト
 
 実装時に確認したAppleの資料は、[MapKitの自然言語検索と検索エリア](https://developer.apple.com/documentation/mapkit/mklocalsearch/request)、[位置情報の利用許可](https://developer.apple.com/documentation/corelocation/cllocationmanager/requestwheninuseauthorization%28%29)、[一度だけの位置情報取得](https://developer.apple.com/documentation/corelocation/cllocationmanager/requestlocation%28%29)、[Foundationのアトミック書き込み](https://developer.apple.com/documentation/foundation/nsdata/writingoptions/atomic)です。
 
-検証結果（2026年9月5日）：Xcode 26.3、iPhone 17 Proシミュレータ（iOS 26.3.1）で写真対応版のビルド成功。単体テスト28件、既存のUIテスト3件、写真用UIテスト2件が成功しました。写真用テストではシステムピッカーからの取り込み、プレビュー、再起動後の復元、削除、変更の破棄を確認しています。Apple Mapsの実検索テストは前回の実装時に成功済みです。写真対応版を実機iPhone 17（iOS 26.6）へ署名付きで更新インストールし、起動まで確認しました。実機での写真選択・GPS取得・iCloud写真のダウンロードは手動確認項目です。
+検証結果（2026年9月5日）：Xcode 26.3、iPhone 17 Proシミュレータ（iOS 26.3.1）で写真対応版のビルド成功。単体テスト28件、既存のUIテスト3件、写真用UIテスト2件が成功しました。写真用テストではシステムピッカーからの取り込み、プレビュー、再起動後の復元、削除、変更の破棄を確認しています。Apple Mapsの実検索テストは前回の実装時に成功済みです。写真対応版では署名付き実機ビルド・インストール・起動を確認しました。実機での写真選択・GPS取得・iCloud写真のダウンロードは手動確認項目です。
 
 画面の記録：[探索](Artifacts/discover.png)、[詳細・評価](Artifacts/detail.png)、[訪問履歴](Artifacts/visited.png)、[実際の検索](Artifacts/live-search.png)。保存済みの画面にあるメモや評価は、通常データとは別の自動テスト用データです。テスト結果は `Artifacts/VerifiedUITests.xcresult` に保存しています。
 
